@@ -1,6 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 
-namespace IAD_zad2.Utilities
+namespace IAD_zad2.Utilities.Distance
 {
     public class ManhattanDistance : IDistanceCalculator
     {

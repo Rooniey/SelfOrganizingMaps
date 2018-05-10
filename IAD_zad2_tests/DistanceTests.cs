@@ -1,5 +1,6 @@
 ﻿using System;
 using IAD_zad2.Utilities;
+using IAD_zad2.Utilities.Distance;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

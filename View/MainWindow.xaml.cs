@@ -14,7 +14,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using IAD_zad2;
+using IAD_zad2.Model;
 using IAD_zad2.Utilities;
+using IAD_zad2.Utilities.Distance;
+using IAD_zad2.Utilities.ExtensionMethods;
+using IAD_zad2.Utilities.Generators;
+using IAD_zad2.Utilities.NeighbourhoodFunction;
+using IAD_zad2.Utilities.ParametersFunctions;
 using MathNet.Numerics.LinearAlgebra;
 using OxyPlot.Series;
 using View.ViewModels;
@@ -28,8 +34,7 @@ namespace View
     {
         public MainWindow()
         {
-            InitializeComponent();
-            
+            InitializeComponent();         
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -51,18 +56,20 @@ namespace View
 
             for (int i = 0; i < numbers.PointsCount; i++)
             {
-                var vec = Vector<double>.Build.Dense(2, kupa => (2 * rand.NextDouble() - 1));
+//                var vec = Vector<double>.Build.Dense(2, kupa => (2 * rand.NextDouble() - 1));
+                var vec = Vector<double>.Build.Dense(2, kupa => (rand.NextDouble() - 1));
                 training.Add(vec);
             }
 
-            var som = new SelfOrganizingMap(numbers.NeuronCount, 2, new ManhattanDistance());
+            var som = new SelfOrganizingMap(numbers.NeuronCount, new NeuronRandomRectangularInitializer(-1,1, 2), new ManhattanDistance());
             som.Train(
                 training, 
                 numbers.EpochsCount, 
-                new KohonenRadialNeighborhood(numbers.KohonenNeighRadMAX, numbers.KohonenNeighRadMIN), 
-                numbers.LearningRateMAX, 
-                numbers.LearningRateMIN);
+                new KohonenGaussianNeighbourhood(new DeclineExponentially(training.Count, numbers.KohonenNeighRadMIN, numbers.KohonenNeighRadMAX)), 
+                new DeclineExponentially(training.Count, numbers.LearningRateMIN, numbers.LearningRateMAX ),
+                new PotentialTiredness(1, 0.8, 0.1));
 
+            
             var scatters1 = new List<ScatterPoint>();
             foreach (var train in training)
             {
@@ -73,6 +80,9 @@ namespace View
             }
             scatters1.Add(new ScatterPoint(-2, -2));
             scatters1.Add(new ScatterPoint(2, 2));
+            scatters1 = scatters1.Shuffle();
+
+
 
             ser.Add(new OxyPlot.Wpf.ScatterSeries
             {
@@ -99,22 +109,6 @@ namespace View
                     MarkerSize = 5
                 });
             }
-
-            //            
-            //            for (int i = 0; i < 3; i++)
-            //            {
-            //                List<ScatterPoint> points = new List<ScatterPoint>();
-            //                
-            //                    points.Add(new ScatterPoint(i, i));
-            //                points.Add(new ScatterPoint(3, 4));
-            //                points.Add(new ScatterPoint(7, 5));
-            //                points.Add(new ScatterPoint(9, 3));
-            //                points.Add(new ScatterPoint(-10, -10));
-            //                points.Add(new ScatterPoint(10, 10));
-            //
-            //                ser.Add(new OxyPlot.Wpf.ScatterSeries
-
-            //            }
 
             ChartWindow chw = new ChartWindow(ser);
             chw.Show();

@@ -1,7 +1,7 @@
 ﻿using System;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace IAD_zad2.Utilities
+namespace IAD_zad2.Utilities.Distance
 {
     public class EuclideanDistance : IDistanceCalculator
     {

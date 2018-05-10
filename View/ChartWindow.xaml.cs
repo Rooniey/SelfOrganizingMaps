@@ -42,22 +42,34 @@ namespace View
                     
 
 
-                    int i = 1;
+                    int i = 2;
+                    Plot.Dispatcher.Invoke((Action)(() =>
+                    {
+
+
+
+                        Plot.Series.Add(AllSeries[0]);
+                        Plot.Series.Add(AllSeries[1]);
+
+                    }));
+                   
                     while (i < AllSeries.Count)
                     {
+                        Thread.Sleep(1000);
                         Plot.Dispatcher.Invoke((Action) (() =>
                         {
-                            Plot.Series.Clear();
-                            Plot.Series.Add(AllSeries[0]);
 
-                            Plot.Series.Add(AllSeries[i]);
+
+
+                            Plot.Series[1].ItemsSource = AllSeries[i].ItemsSource;
+                            
                             Plot.InvalidatePlot(true);
 
                         }));
                         CurrentSeries = AllSeries[i];
 
                         i++;
-                        Thread.Sleep(1000);
+                       
 
                     }
                 });
