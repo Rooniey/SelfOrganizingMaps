@@ -2,6 +2,7 @@
 {
     public interface INeuronInitializer
     {
+        int Dimensions { get; set; }
         void InitializeNeuron(Neuron neuron);
     }
 }

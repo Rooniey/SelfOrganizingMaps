@@ -48,11 +48,13 @@ namespace IAD_zad2.Utilities.ParametersFunctions
             {
                 if (neuron == winner)
                 {
-                    NeuronsPotential[neuron] -= MinimalPotential;
+                    var diff = NeuronsPotential[neuron] - MinimalPotential;
+                    NeuronsPotential[neuron] = diff >= 0 ? diff : 0;
                 }
                 else
                 {
-                    NeuronsPotential[neuron] += RegenerationConstant;
+                    var sum = NeuronsPotential[neuron] + RegenerationConstant;
+                    NeuronsPotential[neuron] = sum <= StartingPotential ? sum : StartingPotential;
                 }
             }
         }

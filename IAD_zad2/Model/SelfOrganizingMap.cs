@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using IAD_zad2.Exceptions;
 using IAD_zad2.Utilities.Distance;
 using IAD_zad2.Utilities.ExtensionMethods;
 using IAD_zad2.Utilities.Generators;
@@ -12,6 +13,7 @@ namespace IAD_zad2.Model
     public class SelfOrganizingMap
     {
         public List<Neuron> Neurons { get; set; } = new List<Neuron>();
+        public int Dimensions { get; set; }
         private IDistanceCalculator _distCal;        
 
         public SelfOrganizingMap(int numberOfNeurons, 
@@ -19,6 +21,7 @@ namespace IAD_zad2.Model
                                  IDistanceCalculator distance)
         {
             _distCal = distance;
+            Dimensions = neuronInit.Dimensions;
             for (int i = 0; i < numberOfNeurons; i++)
             {
                 var neuron = new Neuron();
@@ -34,9 +37,14 @@ namespace IAD_zad2.Model
                           ITirednessMechanism tiredness = null
             )
         {
+            if (trainingData.First().Count != Dimensions)
+                throw new SomLogicalException("Training data points dimensions doesn't match som dimensions.");
+
             tiredness?.Initialize(Neurons);
 
             var shuffled = trainingData.Shuffle();
+
+            
 
             for (int j = 0; j < epochs; j++)
             {
