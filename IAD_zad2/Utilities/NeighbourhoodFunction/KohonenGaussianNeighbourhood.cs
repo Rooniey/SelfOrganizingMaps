@@ -23,9 +23,10 @@ namespace IAD_zad2.Utilities.NeighbourhoodFunction
 
             Dictionary<Neuron, double> neuronNeighborhoodValues = new Dictionary<Neuron, double>();
 
+            var currentRadius = Math.Abs(_radius.GetValue(k)) < 0.00001 ? 0.000001 : _radius.GetValue(k);
             foreach (var neuronDistancePair in neuronDistances)
             {
-                var currentRadius = _radius.GetValue(k);
+                
                 var vecDiff =
                     distanceCalculator.CalculateDistance(winner.CurrentWeights, neuronDistancePair.Key.CurrentWeights);
                 var exponent = (-1.0) * ((vecDiff * vecDiff) / (2 * currentRadius * currentRadius));

@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using IAD_zad2.Exceptions;
-using IAD_zad2.Model;
+﻿using IAD_zad2.Model;
 using IAD_zad2.Utilities.Data;
 using IAD_zad2.Utilities.Distance;
 using IAD_zad2.Utilities.Generators;
 using IAD_zad2.Utilities.NeighbourhoodFunction;
+using IAD_zad2.Utilities.Observer;
 using IAD_zad2.Utilities.ParametersFunctions;
 using MathNet.Numerics.LinearAlgebra;
 using OxyPlot.Series;
-
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using IAD_zad2.Utilities.Data.DataProviders;
+using IAD_zad2.Utilities.Data.Norm;
 
 namespace View
 {
@@ -39,85 +38,10 @@ namespace View
         public string KohonenGaussianChoice { get; set; } = "Kohonen gaussian";
         public string KohonenBubbleChoice { get; set; } = "Kohonen bubble";
         public string NeuralGasChoice { get; set; } = "Neural gas";
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //            List<OxyPlot.Wpf.Series> ser = new List<OxyPlot.Wpf.Series>();
-            //            List<Vector<double>> training = new List<Vector<double>>();
-            //            Random rand = new Random();
-            //
-            //            this.numbers = new MainWindowViewModel
-            //            {
-            //                PointsCount = Int32.Parse(PointsCount.Text),
-            //                NeuronCount = Int32.Parse(NeuronCount.Text),
-            //                EpochsCount = Int32.Parse(EpochsCount.Text),
-            //                LearningRateMAX = Double.Parse(LearningRateMAX.Text, CultureInfo.InvariantCulture),
-            //                LearningRateMIN = Double.Parse(LearningRateMIN.Text, CultureInfo.InvariantCulture),
-            //                KohonenNeighRadMAX = Double.Parse(KohonenNeighRadMAX.Text, CultureInfo.InvariantCulture),
-            //                KohonenNeighRadMIN = Double.Parse(KohonenNeighRadMIN.Text, CultureInfo.InvariantCulture)
-            //            };
-            //
-            //            for (int i = 0; i < numbers.PointsCount; i++)
-            //            {
-            ////                var vec = Vector<double>.Build.Dense(2, kupa => (2 * rand.NextDouble() - 1));
-            //                var vec = Vector<double>.Build.Dense(2, kupa => (rand.NextDouble() - 1));
-            //                training.Add(vec);
-            //            }
-            //
-            //            var som = new SelfOrganizingMap(numbers.NeuronCount, new NeuronRandomRectangularInitializer(-1,1, 2), new ManhattanDistance());
-            //            som.Train(
-            //                training, 
-            //                numbers.EpochsCount, 
-            //                new KohonenGaussianNeighbourhood(new DeclineExponentially(training.Count, numbers.KohonenNeighRadMIN, numbers.KohonenNeighRadMAX)), 
-            //                new DeclineExponentially(training.Count, numbers.LearningRateMIN, numbers.LearningRateMAX ),
-            //                new PotentialTiredness(1, 0.8, 0.1));
-            //
-            //            
-            //            var scatters1 = new List<ScatterPoint>();
-            //            foreach (var train in training)
-            //            {
-            //
-            //                var x1 = train.At(0);
-            //                var y1 = train.At(1);
-            //                scatters1.Add(new ScatterPoint(x1, y1));
-            //            }
-            //            scatters1.Add(new ScatterPoint(-2, -2));
-            //            scatters1.Add(new ScatterPoint(2, 2));
-            //            scatters1 = scatters1.Shuffle();
-            //
-            //
-            //
-            //            ser.Add(new OxyPlot.Wpf.ScatterSeries
-            //            {
-            //                ItemsSource = scatters1,
-            //                Title = $"Training points",
-            //                MarkerSize = 2
-            //            });
-            //
-            //            for (int j = 0; j < numbers.EpochsCount; j++)
-            //            {
-            //                var scatters = new List<ScatterPoint>();
-            //                for (int i = 0; i <  numbers.NeuronCount;i++)
-            //                {
-            //                    var x = som.Neurons[i].HistoryOfWeights[j].At(0);
-            //                    var y = som.Neurons[i].HistoryOfWeights[j].At(1);
-            //                    scatters.Add(new ScatterPoint(x, y));
-            //                }
-            //
-            //
-            //                ser.Add(new OxyPlot.Wpf.ScatterSeries
-            //                {
-            //                    ItemsSource = scatters,
-            //                    Title = $"Neurons",
-            //                    MarkerSize = 5
-            //                });
-            //            }
-            //
-            //            ChartWindow chw = new ChartWindow(ser);
-            //            chw.Show();
-        }
+        public string KMeansChoice { get; set; } = "K-means";
 
         #region Creators
+
         private void SomCreate_Click(object sender, RoutedEventArgs eventArgs)
         {
             try
@@ -137,14 +61,12 @@ namespace View
 
                 SomInformation.Text =
                     $"Successfully created SOM\n NC: {neuronCount}; D: {choice}; Min.: {minWeights}; Max.: {maxWeights}";
-
             }
             catch (Exception e)
             {
                 MessageBox.Show($"Something went wrong while parsing. Original message: {e.Message}");
             }
         }
-        #endregion
 
         private void DataFromFileButton_Click(object sender, RoutedEventArgs eventArgs)
         {
@@ -160,22 +82,28 @@ namespace View
             }
         }
 
-        private void TrainingAlghoritmType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void GenerateDataButton_Click(object sender, RoutedEventArgs eventArgs)
         {
-            if (e.AddedItems.Count > 0 && ((ComboBoxItem)(e.AddedItems[0])).Content.ToString().Contains(NeuralGasChoice))
+            try
             {
-                TrainParameterLabel.Text = "Neural gas lambda";
-
+                IDataProvider prov = new RandomDataProvider(Int32.Parse(DataPointsCount.Text));
+                TrainingData = prov.GetData();
+                DataInfo.Text = $"Successfully generated data.\nData dimensions: {TrainingData.First().Count}\nData count: {TrainingData.Count}";
             }
-            else if (e.RemovedItems.Count > 0 && ((ComboBoxItem)(e.RemovedItems[0])).Content.ToString().Contains(NeuralGasChoice))
+            catch (FormatException e)
             {
-                TrainParameterLabel.Text = "Kohonen neighborhood radius";
+                MessageBox.Show($"Something went wrong while parsing. Original message {e.Message}.");
             }
         }
 
+
+        #endregion Creators
+
+
+
+
         private void StartTrainButton_Click(object sender, RoutedEventArgs eventArgs)
         {
-
             if (Som == null || TrainingData == null)
             {
                 MessageBox.Show("You didn't create network or get data points!\n");
@@ -189,8 +117,26 @@ namespace View
                     double maxLearningRate = double.Parse(TrainingLearningRateMax.Text, CultureInfo.InvariantCulture);
                     double minParameter = double.Parse(TrainingParameterMin.Text, CultureInfo.InvariantCulture);
                     double maxParameter = double.Parse(TrainingParameterMax.Text, CultureInfo.InvariantCulture);
-                    IDecliner decPara = new DeclineExponentially(TrainingData.Count, minParameter, maxParameter);
-                    IDecliner learnPara = new DeclineExponentially(TrainingData.Count, minLearningRate, maxLearningRate);
+                    IDecliner decPara = new DeclineExponentially(TrainingData.Count * epochs, minParameter, maxParameter);
+                    IDecliner learnPara = new DeclineExponentially(TrainingData.Count * epochs, minLearningRate, maxLearningRate);
+                    ITirednessMechanism tired = null;
+                    if (TrainingTirednessMechanism.IsChecked != null && TrainingTirednessMechanism.IsChecked == true)
+                    {
+                        double minPotential = double.Parse(TrainingNeuronPotentialMin.Text, CultureInfo.InvariantCulture);
+                        double maxPotential = double.Parse(TrainingNeuronPotentialMax.Text, CultureInfo.InvariantCulture);
+                        if (TrainingTirednessUpperLimit.Text == "")
+                        {
+                            tired = new PotentialTiredness(maxPotential, minPotential, (1.0 / Som.Neurons.Count));
+                        }
+                        else
+                        {
+                            int upperBound = Int32.Parse(TrainingTirednessUpperLimit.Text, CultureInfo.InvariantCulture);
+                            tired = new PotentialTiredness(maxPotential, minPotential, (1.0 / Som.Neurons.Count), upperBound);
+                        }
+                    }
+                    StandardNeuronObserver sno = Som.Dimensions == 2 ? new StandardNeuronObserver() : null;
+                    Som.Observer = sno;
+
                     string choice = TrainingAlghoritmType.Text;
                     INeighborhoodFunction fun = new KohonenGaussianNeighbourhood(decPara);
                     if (choice == NeuralGasChoice)
@@ -201,12 +147,17 @@ namespace View
                     {
                         fun = new KohonenRadialNeighbourhood(decPara);
                     }
-                    Som.Train(TrainingData, epochs, fun, learnPara);
-
+                    else if (choice == KMeansChoice)
+                    {
+                        fun = new KMeansNeighbourhoodFunction();
+                    }
+                    Som.Train(TrainingData, epochs, fun, learnPara, tired);
+                    SomInformation.Text += "\nSom trained.";
 
                     if (Som.Dimensions == 2)
                     {
-                        List<OxyPlot.Wpf.Series> series = new List<OxyPlot.Wpf.Series>();
+                        List<OxyPlot.Wpf.Series> series =
+                            View.Utility.Converter.ConvertToScatterSeries(sno?.HistoryOfNeurons);
 
                         var scattersData = new List<ScatterPoint>();
                         foreach (var train in TrainingData)
@@ -215,46 +166,91 @@ namespace View
                             var y = train.At(1);
                             scattersData.Add(new ScatterPoint(x, y));
                         }
-                        series.Add(new OxyPlot.Wpf.ScatterSeries
+                        series.Insert(0, new OxyPlot.Wpf.ScatterSeries
                         {
                             ItemsSource = scattersData,
                             Title = $"Training points",
                             MarkerSize = 2
                         });
 
-                        for (int j = 0; j < epochs; j++)
-                        {
-                            var scattersNeurons = new List<ScatterPoint>();
-                            for (int i = 0; i < Som.Neurons.Count; i++)
-                            {
-                                var x = Som.Neurons[i].HistoryOfWeights[j].At(0);
-                                var y = Som.Neurons[i].HistoryOfWeights[j].At(1);
-                                scattersNeurons.Add(new ScatterPoint(x, y));
-                            }
-
-
-
-
-                            series.Add(new OxyPlot.Wpf.ScatterSeries
-                            {
-                                ItemsSource = scattersNeurons,
-                                Title = $"Neurons",
-                                MarkerSize = 4
-                            });
-                        }
-                        ChartWindow chw = new ChartWindow(series);
+                        ChartWindow chw = new ChartWindow(series, TrainingData.Count);
                         chw.Show();
-
                     }
-
-
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message);
                 }
             }
+        }
 
+        private void NormalizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (TrainingData != null)
+            {
+                int square = 1;
+                INormalizer norm = new ScalingSquareNormalizer(square);
+                norm.Normalize(TrainingData);
+                DataInfo.Text += $"\nData scaled to range (-{square}, {square})";
+            }
+            else
+            {
+                MessageBox.Show("Provide data first!");
+            }
+        }
+
+
+
+        #region UiUpdates
+        private void TrainingTirednessMechanism_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (TrainingNeuronPotentialMin != null) TrainingNeuronPotentialMin.IsEnabled = false;
+            if (TrainingNeuronPotentialMax != null) TrainingNeuronPotentialMax.IsEnabled = false;
+        }
+
+        private void TrainingTirednessMechanism_Checked(object sender, RoutedEventArgs e)
+        {
+            if (TrainingNeuronPotentialMin != null) TrainingNeuronPotentialMin.IsEnabled = true;
+            if (TrainingNeuronPotentialMax != null) TrainingNeuronPotentialMax.IsEnabled = true;
+        }
+
+        private void TrainingAlghoritmType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0 && ((ComboBoxItem)(e.AddedItems[0])).Content.ToString().Contains(NeuralGasChoice))
+            {
+                TrainingParameterMin.IsEnabled = true;
+                TrainingParameterMax.IsEnabled = true;
+                TrainParameterLabel.Text = "Neural gas lambda";
+            }
+            else if (e.AddedItems.Count > 0 && ((ComboBoxItem)(e.AddedItems[0])).Content.ToString().Contains("Kohonen"))
+            {
+                TrainingParameterMin.IsEnabled = true;
+                TrainingParameterMax.IsEnabled = true;
+                TrainParameterLabel.Text = "Kohonen neighborhood radius";
+            }
+            else if (e.AddedItems.Count > 0 && ((ComboBoxItem)(e.AddedItems[0])).Content.ToString().Contains(KMeansChoice))
+            {
+                TrainingParameterMin.IsEnabled = false;
+                TrainingParameterMax.IsEnabled = false;
+
+                TrainParameterLabel.Text = "Parameter";
+            }
+        }
+        #endregion
+
+
+        private void BitmapButton_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            IDataProvider dataProvider = new BitmapFileDataProvider();
+            try
+            {
+                TrainingData = dataProvider.GetData();
+                DataInfo.Text = $"Successfully completed loading data from file.\nData dimensions: {TrainingData.First().Count}\nData count: {TrainingData.Count}";
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
 
         }
     }

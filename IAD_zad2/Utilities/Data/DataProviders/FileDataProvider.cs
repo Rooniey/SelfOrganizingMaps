@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using IAD_zad2.Exceptions;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace IAD_zad2.Utilities.Data
+namespace IAD_zad2.Utilities.Data.DataProviders
 {
     public class FileDataProvider : IDataProvider
     {
         public List<Vector<double>> GetData()
         {
-
             List<Vector<double>> data = new List<Vector<double>>();
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
@@ -22,13 +22,12 @@ namespace IAD_zad2.Utilities.Data
             {
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-
                     using (StreamReader sr = new StreamReader(openFileDialog1.OpenFile()))
                     {
                         string line;
                         while ((line = sr.ReadLine()) != null)
                         {
-                            string[] stringValues = line.Split(',');
+                            string[] stringValues = line.Split(new char[] { ',' });
                             List<double> values = new List<double>();
                             foreach (var str in stringValues)
                             {
@@ -53,5 +52,3 @@ namespace IAD_zad2.Utilities.Data
         }
     }
 }
-
-

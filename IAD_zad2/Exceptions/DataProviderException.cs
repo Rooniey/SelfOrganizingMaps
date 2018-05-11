@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IAD_zad2.Utilities.Data
+namespace IAD_zad2.Exceptions
 {
-    class DataProviderException : Exception
+    internal class DataProviderException : Exception
     {
         public DataProviderException()
         {

@@ -17,7 +17,7 @@ namespace IAD_zad2.Utilities.ParametersFunctions
 
         public double GetValue(int k)
         {
-            return MaxValue * Math.Pow(MinValue/ MaxValue, (k * 1.0) / Kmax);
+            return MaxValue * Math.Pow(MinValue / MaxValue, (k * 1.0) / Kmax);
         }
     }
 }

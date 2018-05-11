@@ -33,8 +33,11 @@
     <Reference Include="MathNet.Numerics, Version=4.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.4.0\lib\net461\MathNet.Numerics.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
@@ -44,16 +47,25 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\SomLogicalException.cs" />
-    <Compile Include="Utilities\Data\DataProviderException.cs" />
-    <Compile Include="Utilities\Data\FileDataProvider.cs" />
-    <Compile Include="Utilities\Data\IDataProvider.cs" />
+    <Compile Include="Utilities\Data\DataProviders\Image\BitmapFileDataProvider.cs" />
+    <Compile Include="Exceptions\DataProviderException.cs" />
+    <Compile Include="Utilities\Data\DataProviders\FileDataProvider.cs" />
+    <Compile Include="Utilities\Data\DataProviders\IDataProvider.cs" />
+    <Compile Include="Utilities\Data\DataProviders\RandomDataProvider.cs" />
+    <Compile Include="Utilities\Data\Norm\ScalingSquareNormalizer.cs" />
     <Compile Include="Utilities\ExtensionMethods\ListUtility.cs" />
     <Compile Include="Utilities\Generators\INeuronInitializer.cs" />
     <Compile Include="Utilities\Generators\NeuronRandomRectangularInitializer.cs" />
+    <Compile Include="Utilities\Generators\RandomNumberProvider.cs" />
+    <Compile Include="Utilities\Data\Norm\INormalizer.cs" />
+    <Compile Include="Utilities\ImageProcessing\BitmapConverter.cs" />
+    <Compile Include="Utilities\ImageProcessing\IImageProcessing.cs" />
     <Compile Include="Utilities\NeighbourhoodFunction\INeighborhoodFunction.cs" />
+    <Compile Include="Utilities\NeighbourhoodFunction\KMeansNeighbourhoodFunction.cs" />
     <Compile Include="Utilities\NeighbourhoodFunction\KohonenGaussianNeighbourhood.cs" />
     <Compile Include="Utilities\NeighbourhoodFunction\KohonenRadialNeighbourhood.cs" />
     <Compile Include="Model\Neuron.cs" />
@@ -63,6 +75,8 @@
     <Compile Include="Utilities\Distance\IDistanceCalculator.cs" />
     <Compile Include="Utilities\Distance\ManhattanDistance.cs" />
     <Compile Include="Utilities\NeighbourhoodFunction\NeuralGasNeighbourhoodFunction.cs" />
+    <Compile Include="Utilities\Observer\INeuronObserver.cs" />
+    <Compile Include="Utilities\Observer\StandardNeuronObserver.cs" />
     <Compile Include="Utilities\ParametersFunctions\DeclineExponentially.cs" />
     <Compile Include="Utilities\ParametersFunctions\IDecliner.cs" />
     <Compile Include="Utilities\ParametersFunctions\ITirednessMechanism.cs" />

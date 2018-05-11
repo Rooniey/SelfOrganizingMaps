@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Complex;
 
-namespace IAD_zad2.Utilities.Data
+namespace IAD_zad2.Utilities.Data.DataProviders
 {
     public interface IDataProvider
     {

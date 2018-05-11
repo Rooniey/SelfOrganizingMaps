@@ -27,6 +27,5 @@ namespace IAD_zad2.Utilities.ExtensionMethods
 
             return list;
         }
-
     }
 }

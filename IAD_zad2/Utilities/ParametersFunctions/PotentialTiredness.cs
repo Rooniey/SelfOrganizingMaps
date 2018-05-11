@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace IAD_zad2.Utilities.ParametersFunctions
@@ -9,17 +10,26 @@ namespace IAD_zad2.Utilities.ParametersFunctions
         public double MinimalPotential { get; set; }
         public double RegenerationConstant { get; set; }
 
-        private Dictionary<Neuron, double> NeuronsPotential { get; set; } = new Dictionary<Neuron, double>();
+        public int UpperLimit { get; set; }
+        public int CurrentIteration { get; set; }
 
-        public PotentialTiredness(double startingPotential, double minimalPotential, double regenerationConstant)
+        private bool _isOn;
+        public bool IsOn { get => _isOn; }
+
+        private Dictionary<Neuron, double> NeuronsPotential { get; } = new Dictionary<Neuron, double>();
+
+        public PotentialTiredness(double startingPotential, double minimalPotential, double regenerationConstant, int upperLimit = Int32.MaxValue)
         {
             StartingPotential = startingPotential;
             MinimalPotential = minimalPotential;
             RegenerationConstant = regenerationConstant;
+            UpperLimit = upperLimit;
         }
 
         public void Initialize(List<Neuron> neurons)
         {
+            _isOn = true;
+            CurrentIteration = 0;
             foreach (var neuron in neurons)
             {
                 NeuronsPotential.Add(neuron, StartingPotential);
@@ -28,35 +38,51 @@ namespace IAD_zad2.Utilities.ParametersFunctions
 
         public List<Neuron> SelectPotentialWinners(List<Neuron> neurons)
         {
-            var potentialWinners = neurons.Where(n => NeuronsPotential[n] > MinimalPotential).ToList();
-            if (potentialWinners.Count == 0)
+            if (CurrentIteration > UpperLimit) Deactivate();
+            if (IsOn)
             {
-                foreach (var neuron in neurons)
+                var potentialWinners = neurons.Where(n => NeuronsPotential[n] > MinimalPotential).ToList();
+                if (potentialWinners.Count == 0)
                 {
-                    NeuronsPotential[neuron] = StartingPotential;
+                    foreach (var neuron in neurons)
+                    {
+                        NeuronsPotential[neuron] = StartingPotential;
+                    }
+
+                    return neurons;
                 }
 
-                return neurons;
+                return potentialWinners;
             }
 
-            return potentialWinners;
+            return neurons;
         }
 
         public void Update(Neuron winner, List<Neuron> neurons)
         {
-            foreach (var neuron in neurons)
+            if (IsOn)
             {
-                if (neuron == winner)
+                foreach (var neuron in neurons)
                 {
-                    var diff = NeuronsPotential[neuron] - MinimalPotential;
-                    NeuronsPotential[neuron] = diff >= 0 ? diff : 0;
-                }
-                else
-                {
-                    var sum = NeuronsPotential[neuron] + RegenerationConstant;
-                    NeuronsPotential[neuron] = sum <= StartingPotential ? sum : StartingPotential;
+                    if (neuron == winner)
+                    {
+                        var diff = NeuronsPotential[neuron] - MinimalPotential;
+                        NeuronsPotential[neuron] = diff >= 0 ? diff : 0;
+                    }
+                    else
+                    {
+                        var sum = NeuronsPotential[neuron] + RegenerationConstant;
+                        NeuronsPotential[neuron] = sum <= StartingPotential ? sum : StartingPotential;
+                    }
                 }
             }
+
+            CurrentIteration += 1;
+        }
+
+        public void Deactivate()
+        {
+            _isOn = false;
         }
     }
 }

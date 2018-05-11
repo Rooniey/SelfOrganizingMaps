@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using IAD_zad2.Exceptions;
+﻿using IAD_zad2.Exceptions;
 using IAD_zad2.Utilities.Distance;
 using IAD_zad2.Utilities.ExtensionMethods;
 using IAD_zad2.Utilities.Generators;
 using IAD_zad2.Utilities.NeighbourhoodFunction;
+using IAD_zad2.Utilities.Observer;
 using IAD_zad2.Utilities.ParametersFunctions;
 using MathNet.Numerics.LinearAlgebra;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IAD_zad2.Model
 {
@@ -14,9 +15,10 @@ namespace IAD_zad2.Model
     {
         public List<Neuron> Neurons { get; set; } = new List<Neuron>();
         public int Dimensions { get; set; }
-        private IDistanceCalculator _distCal;        
+        private IDistanceCalculator _distCal;
+        public ITrainingObserver Observer { get; set; }
 
-        public SelfOrganizingMap(int numberOfNeurons, 
+        public SelfOrganizingMap(int numberOfNeurons,
                                  INeuronInitializer neuronInit,
                                  IDistanceCalculator distance)
         {
@@ -30,9 +32,9 @@ namespace IAD_zad2.Model
             }
         }
 
-        public void Train(List<Vector<double> > trainingData, 
+        public void Train(List<Vector<double>> trainingData,
                           int epochs,
-                          INeighborhoodFunction neighborhoodFunction,   
+                          INeighborhoodFunction neighborhoodFunction,
                           IDecliner learningRate,
                           ITirednessMechanism tiredness = null
             )
@@ -41,13 +43,11 @@ namespace IAD_zad2.Model
                 throw new SomLogicalException("Training data points dimensions doesn't match som dimensions.");
 
             tiredness?.Initialize(Neurons);
-
-            var shuffled = trainingData.Shuffle();
-
-            
+            Observer?.SaveState(Neurons);
 
             for (int j = 0; j < epochs; j++)
             {
+                var shuffled = trainingData.Shuffle();
                 for (int i = 0; i < shuffled.Count; i++)
                 {
                     Dictionary<Neuron, double> neuronsDistances = new Dictionary<Neuron, double>();
@@ -63,28 +63,20 @@ namespace IAD_zad2.Model
                     Neuron winner = neuronsDistances.Where(pair => potentialWinners.Contains(pair.Key))
                           .OrderBy(pair => pair.Value).First().Key;
 
-                    tiredness?.Update(winner,Neurons);
+                    tiredness?.Update(winner, Neurons);
 
-                    var neuronsNeighbourhoodCoefficients = neighborhoodFunction.CalculateNeighborhoodValues(winner, neuronsDistances, _distCal, i);
+                    var neuronsNeighbourhoodCoefficients = neighborhoodFunction.CalculateNeighborhoodValues(winner, neuronsDistances, _distCal, j * trainingData.Count + i);
 
                     foreach (var neuron in Neurons)
                     {
                         var diffVec = shuffled[i].Subtract(neuron.CurrentWeights);
 
-                        var deltaWeight = diffVec.Multiply( learningRate.GetValue(i) * neuronsNeighbourhoodCoefficients[neuron]);
-                        neuron.CurrentWeights += deltaWeight;
+                        var deltaWeight = diffVec.Multiply(learningRate.GetValue(j * trainingData.Count + i) * neuronsNeighbourhoodCoefficients[neuron]);
+                        neuron.CurrentWeights = neuron.CurrentWeights + deltaWeight;
                     }
+
+                    Observer?.SaveState(Neurons);
                 }
-
-                SaveState();
-            }
-        }
-
-        private void SaveState()
-        {
-            foreach (var neuron in Neurons)
-            {
-                neuron.SaveWeights();
             }
         }
     }

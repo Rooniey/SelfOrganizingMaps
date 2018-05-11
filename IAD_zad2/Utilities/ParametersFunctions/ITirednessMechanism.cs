@@ -9,6 +9,5 @@ namespace IAD_zad2.Utilities.ParametersFunctions
         List<Neuron> SelectPotentialWinners(List<Neuron> neurons);
 
         void Update(Neuron winner, List<Neuron> neurons);
-
     }
 }
