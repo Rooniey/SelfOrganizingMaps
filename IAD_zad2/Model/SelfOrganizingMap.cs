@@ -19,8 +19,8 @@ namespace IAD_zad2.Model
         public ITrainingObserver Observer { get; set; }
 
         public SelfOrganizingMap(int numberOfNeurons,
-                                 INeuronInitializer neuronInit,
-                                 IDistanceCalculator distance)
+            INeuronInitializer neuronInit,
+            IDistanceCalculator distance)
         {
             _distCal = distance;
             Dimensions = neuronInit.Dimensions;
@@ -33,11 +33,11 @@ namespace IAD_zad2.Model
         }
 
         public void Train(List<Vector<double>> trainingData,
-                          int epochs,
-                          INeighborhoodFunction neighborhoodFunction,
-                          IDecliner learningRate,
-                          ITirednessMechanism tiredness = null
-            )
+            int epochs,
+            INeighborhoodFunction neighborhoodFunction,
+            IDecliner learningRate,
+            ITirednessMechanism tiredness = null
+        )
         {
             if (trainingData.First().Count != Dimensions)
                 throw new SomLogicalException("Training data points dimensions doesn't match som dimensions.");
@@ -55,29 +55,41 @@ namespace IAD_zad2.Model
                     for (int k = 0; k < Neurons.Count; k++)
                     {
                         //store neurons with their distances
-                        neuronsDistances.Add(Neurons[k], _distCal.CalculateDistance(shuffled[i], Neurons[k].CurrentWeights));
+                        neuronsDistances.Add(Neurons[k],
+                            _distCal.CalculateDistance(shuffled[i], Neurons[k].CurrentWeights));
                     }
 
                     var potentialWinners = tiredness == null ? Neurons : tiredness.SelectPotentialWinners(Neurons);
 
                     Neuron winner = neuronsDistances.Where(pair => potentialWinners.Contains(pair.Key))
-                          .OrderBy(pair => pair.Value).First().Key;
+                        .OrderBy(pair => pair.Value).First().Key;
 
                     tiredness?.Update(winner, Neurons);
 
-                    var neuronsNeighbourhoodCoefficients = neighborhoodFunction.CalculateNeighborhoodValues(winner, neuronsDistances, _distCal, j * trainingData.Count + i);
+                    var neuronsNeighbourhoodCoefficients =
+                        neighborhoodFunction.CalculateNeighborhoodValues(winner, neuronsDistances, _distCal,
+                            j * trainingData.Count + i);
 
                     foreach (var neuron in Neurons)
                     {
                         var diffVec = shuffled[i].Subtract(neuron.CurrentWeights);
 
-                        var deltaWeight = diffVec.Multiply(learningRate.GetValue(j * trainingData.Count + i) * neuronsNeighbourhoodCoefficients[neuron]);
+                        var deltaWeight = diffVec.Multiply(learningRate.GetValue(j * trainingData.Count + i) *
+                                                           neuronsNeighbourhoodCoefficients[neuron]);
                         neuron.CurrentWeights = neuron.CurrentWeights + deltaWeight;
                     }
 
                     Observer?.SaveState(Neurons);
                 }
             }
+        }
+
+        public int GetWinnerIndexForInput(Vector<double> input)
+        {
+            return Neurons
+                .Select((n, i) => new {index = i, value = _distCal.CalculateDistance(n.CurrentWeights, input)})
+                .OrderBy(item => item.value)
+                .First().index;
         }
     }
 }

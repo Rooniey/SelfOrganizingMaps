@@ -10,11 +10,15 @@ using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using IAD_zad2.Utilities.Data.DataProviders;
+using IAD_zad2.Utilities.Data.DataProviders.Image;
 using IAD_zad2.Utilities.Data.Norm;
+using IAD_zad2.Utilities.ImageProcessing;
+using Microsoft.Win32;
 
 namespace View
 {
@@ -241,17 +245,39 @@ namespace View
 
         private void BitmapButton_Click(object sender, RoutedEventArgs eventArgs)
         {
-            IDataProvider dataProvider = new BitmapFileDataProvider();
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+
+            openFileDialog1.InitialDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+          
             try
             {
-                TrainingData = dataProvider.GetData();
-                DataInfo.Text = $"Successfully completed loading data from file.\nData dimensions: {TrainingData.First().Count}\nData count: {TrainingData.Count}";
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
+                Nullable<bool> result = openFileDialog1.ShowDialog();
+
+                // Process open file dialog box results
+                if (result == true)
+                {
+                    // Open document
+                    string filename = openFileDialog1.FileName;
+                    DataToCompressFromImageGenerator gen = new DataToCompressFromImageGenerator();
+
+                    gen.GenerateData(filename, "cos");
+                    DataInfo.Text = $"Successfully generated data.";
+                }
             }
 
+            catch (Exception e)
+            {
+                MessageBox.Show($"File could not be read. Original message: {e.Message}.");
+            }
+
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            IImageSomCompressor com = new ImageProcessing();
+            com.Compress(Som, TrainingData, System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/smiszne.txt");
+            com.Decompress("C:\\Users\\Marek\\Desktop\\smiszne.txt", "cokolwiek.txt", Som);
         }
     }
 }

@@ -51,10 +51,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\SomLogicalException.cs" />
-    <Compile Include="Utilities\Data\DataProviders\Image\BitmapFileDataProvider.cs" />
     <Compile Include="Exceptions\DataProviderException.cs" />
     <Compile Include="Utilities\Data\DataProviders\FileDataProvider.cs" />
     <Compile Include="Utilities\Data\DataProviders\IDataProvider.cs" />
+    <Compile Include="Utilities\Data\DataProviders\Image\BasicDataGenerator.cs" />
+    <Compile Include="Utilities\Data\DataProviders\Image\DataToCompressFromImageGenerator.cs" />
     <Compile Include="Utilities\Data\DataProviders\RandomDataProvider.cs" />
     <Compile Include="Utilities\Data\Norm\ScalingSquareNormalizer.cs" />
     <Compile Include="Utilities\ExtensionMethods\ListUtility.cs" />
@@ -62,8 +63,8 @@
     <Compile Include="Utilities\Generators\NeuronRandomRectangularInitializer.cs" />
     <Compile Include="Utilities\Generators\RandomNumberProvider.cs" />
     <Compile Include="Utilities\Data\Norm\INormalizer.cs" />
-    <Compile Include="Utilities\ImageProcessing\BitmapConverter.cs" />
-    <Compile Include="Utilities\ImageProcessing\IImageProcessing.cs" />
+    <Compile Include="Utilities\ImageProcessing\IImageSomCompressor.cs" />
+    <Compile Include="Utilities\ImageProcessing\ImageProcessing.cs" />
     <Compile Include="Utilities\NeighbourhoodFunction\INeighborhoodFunction.cs" />
     <Compile Include="Utilities\NeighbourhoodFunction\KMeansNeighbourhoodFunction.cs" />
     <Compile Include="Utilities\NeighbourhoodFunction\KohonenGaussianNeighbourhood.cs" />
