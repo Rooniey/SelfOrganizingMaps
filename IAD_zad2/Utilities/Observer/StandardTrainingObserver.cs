@@ -1,9 +1,11 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
+using System.Threading;
+using IAD_zad2.Model;
 
 namespace IAD_zad2.Utilities.Observer
 {
-    public class StandardNeuronObserver : ITrainingObserver
+    public class StandardTrainingObserver : ITrainingObserver
     {
         public List<List<Vector<double>>> HistoryOfNeurons { get; } = new List<List<Vector<double>>>();
 

@@ -1,6 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 
-namespace IAD_zad2
+namespace IAD_zad2.Model
 {
     public class Neuron
     {

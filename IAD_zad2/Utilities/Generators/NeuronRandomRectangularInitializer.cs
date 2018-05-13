@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
+using IAD_zad2.Model;
 
 namespace IAD_zad2.Utilities.Generators
 {

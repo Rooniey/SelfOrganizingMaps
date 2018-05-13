@@ -6,8 +6,8 @@ namespace IAD_zad2.Utilities.Data.DataProviders.Image
 {
     public class DataToCompressFromImageGenerator : BasicDataGenerator
     {
-        private static readonly int neuronsInFrame = 9;
-        private static readonly int stepSize = 3;
+        private static readonly int neuronsInFrame = 16;
+        private static readonly int stepSize = 4;
         public override void GenerateData(string pathToSourceImage, string pathToSaveData, bool shouldReverseColors = false)
         {
             try
@@ -19,19 +19,19 @@ namespace IAD_zad2.Utilities.Data.DataProviders.Image
                     {
                         // prepare saving results results
 
-                        using (var file = File.Create(System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/cos.txt")) //to create file
+                        using (var file = File.Create(pathToSaveData)) //to create file
                         {
                             using (var writer = new StreamWriter(file))
                             {
                                 int width, height;
                                 if (sourceImage.Width >= sourceImage.Height) // width and height has to be the same, so choose smaller
                                 {
-                                    height = (sourceImage.Height / 3) * 3;
+                                    height = (sourceImage.Height / stepSize) * stepSize;
                                     width = height;
                                 }
                                 else
                                 {
-                                    width = (sourceImage.Width / 3) * 3;
+                                    width = (sourceImage.Width / stepSize) * stepSize;
                                     height = width;
                                 }
 

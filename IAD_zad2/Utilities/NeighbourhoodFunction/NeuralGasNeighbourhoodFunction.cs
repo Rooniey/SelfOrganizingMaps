@@ -3,6 +3,7 @@ using IAD_zad2.Utilities.ParametersFunctions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using IAD_zad2.Model;
 
 namespace IAD_zad2.Utilities.NeighbourhoodFunction
 {

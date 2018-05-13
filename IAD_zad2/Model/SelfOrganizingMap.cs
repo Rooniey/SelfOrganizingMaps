@@ -2,61 +2,64 @@
 using IAD_zad2.Utilities.Distance;
 using IAD_zad2.Utilities.ExtensionMethods;
 using IAD_zad2.Utilities.Generators;
-using IAD_zad2.Utilities.NeighbourhoodFunction;
 using IAD_zad2.Utilities.Observer;
-using IAD_zad2.Utilities.ParametersFunctions;
 using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
 using System.Linq;
+using IAD_zad2.Model.Parameters;
 
 namespace IAD_zad2.Model
 {
-    public class SelfOrganizingMap
+    public class SelfOrganizingMap : NeuralNetwork
     {
-        public List<Neuron> Neurons { get; set; } = new List<Neuron>();
-        public int Dimensions { get; set; }
-        private IDistanceCalculator _distCal;
-        public ITrainingObserver Observer { get; set; }
 
         public SelfOrganizingMap(int numberOfNeurons,
             INeuronInitializer neuronInit,
-            IDistanceCalculator distance)
+            IDistanceCalculator distance) : base(numberOfNeurons, neuronInit, distance)
         {
-            _distCal = distance;
-            Dimensions = neuronInit.Dimensions;
-            for (int i = 0; i < numberOfNeurons; i++)
-            {
-                var neuron = new Neuron();
-                neuronInit.InitializeNeuron(neuron);
-                Neurons.Add(neuron);
-            }
+            
         }
 
-        public void Train(List<Vector<double>> trainingData,
-            int epochs,
-            INeighborhoodFunction neighborhoodFunction,
-            IDecliner learningRate,
-            ITirednessMechanism tiredness = null
-        )
+
+        public override void Train(TrainingParameters parameters)
         {
+            SomTrainingParameters p = (SomTrainingParameters) parameters;
+            try
+            {
+                parameters.Validate();
+            }
+            catch(TrainingParametersException e)
+            {
+                throw new SomLogicalException($"Improper training parameters. {e.Message}");
+            }
+            
+            var trainingData = p.TrainingData;
+            var iterations = p.NumberOfIterations;
+            var neighborhoodFunction = p.NeighbourhoodFunction;
+            var learningRate = p.LearningRate;
+            var tiredness = p.TirednessMechanism;
+
+
             if (trainingData.First().Count != Dimensions)
                 throw new SomLogicalException("Training data points dimensions doesn't match som dimensions.");
 
             tiredness?.Initialize(Neurons);
             Observer?.SaveState(Neurons);
 
-            for (int j = 0; j < epochs; j++)
+            int numberOfShuffles = (iterations / trainingData.Count) + 1;
+            for (int j = 0; j < numberOfShuffles; j++)
             {
                 var shuffled = trainingData.Shuffle();
                 for (int i = 0; i < shuffled.Count; i++)
                 {
+                    if (j * shuffled.Count + i == iterations) return;
                     Dictionary<Neuron, double> neuronsDistances = new Dictionary<Neuron, double>();
 
                     for (int k = 0; k < Neurons.Count; k++)
                     {
                         //store neurons with their distances
                         neuronsDistances.Add(Neurons[k],
-                            _distCal.CalculateDistance(shuffled[i], Neurons[k].CurrentWeights));
+                            DistanceCalculator.CalculateDistance(shuffled[i], Neurons[k].CurrentWeights));
                     }
 
                     var potentialWinners = tiredness == null ? Neurons : tiredness.SelectPotentialWinners(Neurons);
@@ -67,7 +70,7 @@ namespace IAD_zad2.Model
                     tiredness?.Update(winner, Neurons);
 
                     var neuronsNeighbourhoodCoefficients =
-                        neighborhoodFunction.CalculateNeighborhoodValues(winner, neuronsDistances, _distCal,
+                        neighborhoodFunction.CalculateNeighborhoodValues(winner, neuronsDistances, DistanceCalculator,
                             j * trainingData.Count + i);
 
                     foreach (var neuron in Neurons)
@@ -82,14 +85,6 @@ namespace IAD_zad2.Model
                     Observer?.SaveState(Neurons);
                 }
             }
-        }
-
-        public int GetWinnerIndexForInput(Vector<double> input)
-        {
-            return Neurons
-                .Select((n, i) => new {index = i, value = _distCal.CalculateDistance(n.CurrentWeights, input)})
-                .OrderBy(item => item.value)
-                .First().index;
         }
     }
 }

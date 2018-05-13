@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using View.Utility;
 
 namespace View
 {
@@ -12,60 +14,93 @@ namespace View
     /// </summary>
     public partial class ChartWindow : Window
     {
-        public List<Series> AllSeries { get; set; }
-        public Series CurrentSeries { get; set; }
-        public int Kmax { get; set; }
+        public Series Stat { get; set; }
+        public List<Series> Moving { get; set; }
+        public List<List<Series>> AnimationSeries { get; set; }
+        public PlotAnimation PlotAnimation { get; set; }
+        public bool MultipleSerieses { get;  }
+        public Thread ThreadUiUpdate { get; }
 
-        public Thread AnimationThread { get; set; }
-
-        public ChartWindow(List<Series> series, int kmax)
+        public ChartWindow(Series stat, List<Series> animationSeries)
         {
             InitializeComponent();
-            Kmax = kmax;
-            AllSeries = series;
+            Stat = stat;
+            PlotAnimation = new PlotAnimation(Plot);
+            PlotAnimation.AnimationNextFrame += UpdateTimeline;
+            ThreadUiUpdate = new Thread(() => { PlotAnimation.AnimationNextFrame += UpdateTimeline; });
+            ThreadUiUpdate.Start();
+            Moving = animationSeries;
+            MultipleSerieses = false;
+            TimeLine.SelectionStart = 0;
+            TimeLine.SelectionEnd = Moving.Count;
+        }
+
+        public ChartWindow(List<List<Series>> animationSeries)
+        {
+            InitializeComponent();
+            PlotAnimation = new PlotAnimation(Plot);
+            ThreadUiUpdate = new Thread(() => { PlotAnimation.AnimationNextFrame += UpdateTimeline; });
+            ThreadUiUpdate.Start();
+            AnimationSeries = animationSeries;
+            MultipleSerieses = true;
+            TimeLine.SelectionStart = 0;
+            TimeLine.SelectionEnd = AnimationSeries.Count;
+        }
+
+        public ChartWindow()
+        {
+            InitializeComponent();
         }
 
         private void RunAnimationButton_Click(object sender, RoutedEventArgs e)
         {
-            if (AnimationThread == null)
+            if (!PlotAnimation.IsRunning)
             {
-                AnimationThread = new Thread(() =>
+                try
                 {
-                    int i = 2;
-                    Plot.Dispatcher.Invoke((Action)(() =>
+                    int speed = Int32.Parse(SpeedInMiliseconds.Text);
+                    if (MultipleSerieses)
                     {
-                        Plot.Series.Add(AllSeries[0]);
-                        Plot.Series.Add(AllSeries[1]);
-                        Plot.Title = $"epoch = 1; k = {i - 1}";
-                    }));
-
-                    Thread.Sleep(300);
-                    while (i < AllSeries.Count)
-                    {
-                        Plot.Dispatcher.Invoke((Action)(() =>
-                       {
-                           Plot.Series[1].ItemsSource = AllSeries[i].ItemsSource;
-                           Plot.InvalidatePlot(true);
-                           Plot.Title = $"epoch = {(i - 1) / Kmax} k = {i - 1}";
-                       }));
-                        CurrentSeries = AllSeries[i];
-                        i++;
+                        PlotAnimation.RunMultipleSeries(speed, AnimationSeries);
                     }
-                });
-                AnimationThread.Start();
+                    else
+                    {
+                        PlotAnimation.RunMultipleAnimationsWithOneStatic(speed, Stat, Moving);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Something went wrong while starting animation. Original message: {ex.Message}");
+                }
             }
         }
+
+        private void UpdateTimeline(object sender, EventArgs e)
+        {
+            AnimationNextFrameEventArgs p = (AnimationNextFrameEventArgs) e;
+            TimeLine.Value = p.CurrentIteration;
+        }
+        
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs eventArgs)
         {
             try
             {
-                AnimationThread?.Abort();
+                PlotAnimation.End();
+                ThreadUiUpdate.Abort();
             }
             catch (ThreadAbortException e)
             {
                 Debug.WriteLine(e.Message);
             }
+        }
+
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(PlotAnimation.IsRunning)
+                PlotAnimation.Pause();
+            else 
+                PlotAnimation.Resume();
         }
     }
 }

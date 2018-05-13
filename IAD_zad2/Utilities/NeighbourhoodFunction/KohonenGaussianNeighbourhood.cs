@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using IAD_zad2.Model;
 using IAD_zad2.Utilities.Distance;
 using IAD_zad2.Utilities.ParametersFunctions;
 

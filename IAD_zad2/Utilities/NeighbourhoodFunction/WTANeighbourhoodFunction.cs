@@ -1,9 +1,10 @@
 ﻿using IAD_zad2.Utilities.Distance;
 using System.Collections.Generic;
+using IAD_zad2.Model;
 
 namespace IAD_zad2.Utilities.NeighbourhoodFunction
 {
-    public class KMeansNeighbourhoodFunction : INeighborhoodFunction
+    public class WTANeighbourhoodFunction : INeighborhoodFunction
     {
         public Dictionary<Neuron, double> CalculateNeighborhoodValues(Neuron winner,
                                                                       Dictionary<Neuron, double> neuronDistances,
