@@ -2,6 +2,8 @@
 using OxyPlot.Series;
 using System.Collections.Generic;
 using System.Windows.Media;
+using IAD_zad2.Utilities.Generators;
+using OxyPlot;
 
 namespace View.Utility
 {
@@ -24,21 +26,22 @@ namespace View.Utility
                 {
                     ItemsSource = it,
                     Title = $"Neurons",
-                    Color = Color.FromRgb(191,91,69),
-                    MarkerSize = 4
+                    MarkerSize = 5,
+                    MarkerType = MarkerType.Circle,
+                    MarkerFill = Color.FromRgb(0, 0,0)
                 });
                
             }
 
             return scatterSeries;
         }
-        
 
-        public static ScatterPoint ConvertVectorToScatterPoint(Vector<double> data)
+
+        public static ScatterPoint ConvertVectorToScatterPoint(Vector<double> data, bool respect = false)
         {
             var x = data.At(0);
             var y = data.At(1);
-            return new ScatterPoint(x,y);
+            return new ScatterPoint(x,y, respect ? 6 : 3);
         }
 
     }

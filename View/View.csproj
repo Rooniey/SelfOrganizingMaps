@@ -87,7 +87,6 @@
     <Compile Include="ImageWindow.xaml.cs">
       <DependentUpon>ImageWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utility\AnimationNextFrameEventArgs.cs" />
     <Compile Include="Utility\Converter.cs" />
     <Compile Include="Utility\PlotAnimation.cs" />
     <Page Include="ChartWindow.xaml">

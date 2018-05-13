@@ -19,32 +19,22 @@ namespace View
         public List<List<Series>> AnimationSeries { get; set; }
         public PlotAnimation PlotAnimation { get; set; }
         public bool MultipleSerieses { get;  }
-        public Thread ThreadUiUpdate { get; }
 
         public ChartWindow(Series stat, List<Series> animationSeries)
         {
             InitializeComponent();
-            Stat = stat;
             PlotAnimation = new PlotAnimation(Plot);
-            PlotAnimation.AnimationNextFrame += UpdateTimeline;
-            ThreadUiUpdate = new Thread(() => { PlotAnimation.AnimationNextFrame += UpdateTimeline; });
-            ThreadUiUpdate.Start();
+            Stat = stat;
             Moving = animationSeries;
             MultipleSerieses = false;
-            TimeLine.SelectionStart = 0;
-            TimeLine.SelectionEnd = Moving.Count;
         }
 
         public ChartWindow(List<List<Series>> animationSeries)
         {
             InitializeComponent();
             PlotAnimation = new PlotAnimation(Plot);
-            ThreadUiUpdate = new Thread(() => { PlotAnimation.AnimationNextFrame += UpdateTimeline; });
-            ThreadUiUpdate.Start();
             AnimationSeries = animationSeries;
             MultipleSerieses = true;
-            TimeLine.SelectionStart = 0;
-            TimeLine.SelectionEnd = AnimationSeries.Count;
         }
 
         public ChartWindow()
@@ -75,19 +65,12 @@ namespace View
             }
         }
 
-        private void UpdateTimeline(object sender, EventArgs e)
-        {
-            AnimationNextFrameEventArgs p = (AnimationNextFrameEventArgs) e;
-            TimeLine.Value = p.CurrentIteration;
-        }
-        
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs eventArgs)
         {
             try
             {
                 PlotAnimation.End();
-                ThreadUiUpdate.Abort();
             }
             catch (ThreadAbortException e)
             {

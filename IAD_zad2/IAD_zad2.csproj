@@ -62,6 +62,7 @@
     <Compile Include="Utilities\Data\DataProviders\IDataProvider.cs" />
     <Compile Include="Utilities\Data\DataProviders\Image\BasicDataGenerator.cs" />
     <Compile Include="Utilities\Data\DataProviders\Image\DataToCompressFromImageGenerator.cs" />
+    <Compile Include="Utilities\Data\DataProviders\Image\ShapeFileGenerator.cs" />
     <Compile Include="Utilities\Data\DataProviders\RandomDataProvider.cs" />
     <Compile Include="Utilities\Data\Norm\ScalingSquareNormalizer.cs" />
     <Compile Include="Utilities\Error\QuantizationErrorCalculator.cs" />

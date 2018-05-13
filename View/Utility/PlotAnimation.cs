@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using OxyPlot;
 using OxyPlot.Wpf;
 
 namespace View.Utility
@@ -14,8 +16,6 @@ namespace View.Utility
         public Plot Plot { get; set; }
         public int Miliseconds { get; set; }
         public int CurrentIteration { get; set; }
-        public event EventHandler AnimationNextFrame;
-
         public bool IsRunning { get; set; }
 
         public PlotAnimation(Plot plot)
@@ -36,14 +36,16 @@ namespace View.Utility
         public void RunMultipleAnimationsWithOneStatic(int miliseconds, Series stat,
             List<Series> seriesList)
         {
+            
             if (AnimationThread == null || !AnimationThread.IsAlive)
             {
+                IsRunning = true;
+                CurrentIteration = 0;
+                Plot.Series.Clear();
                 Plot.Series.Add(stat);
                 Plot.InvalidatePlot();
                 AnimationThread = new Thread(() =>
                 {
-                    IsRunning = true;
-                    CurrentIteration = 0;
                     while (CurrentIteration < seriesList.Count)
                     {
                         if (IsRunning)
@@ -52,32 +54,28 @@ namespace View.Utility
                             Plot.Dispatcher.Invoke((Action) (() =>
                             {
                                 if (CurrentIteration > 0) Plot.Series.RemoveAt(1);
-                                Plot.Series.Add(seriesList[CurrentIteration]);
+                                Plot.Series.Add(seriesList[CurrentIteration]);                   
                                 Plot.InvalidatePlot();
-                                OnAnimationNextFrame(new AnimationNextFrameEventArgs(CurrentIteration));
                             }));
                             CurrentIteration++;
                         }
                     }
+                    IsRunning = false;
                 });
                 AnimationThread.Start();
             }
         }
 
-        protected virtual void OnAnimationNextFrame(EventArgs e)
-        {
-            EventHandler handler = AnimationNextFrame;
-            handler?.Invoke(this, e);
-        }
-
         public void RunMultipleSeries(int miliseconds, List<List<Series>> series)
         {
+           
             if (AnimationThread == null || !AnimationThread.IsAlive)
             {
+                CurrentIteration = 0;
+                IsRunning = true;
+                Plot.Series.Clear();
                 AnimationThread = new Thread(() =>
                 {
-                    IsRunning = true;
-                    CurrentIteration = 0;
                     while (CurrentIteration < series.Count)
                     {
                         if (IsRunning)
@@ -90,13 +88,14 @@ namespace View.Utility
                                 {
                                     Plot.Series.Add(s);
                                 }
-
                                 Plot.InvalidatePlot();
                             }));
                             CurrentIteration++;
                         }
                     }
+                    IsRunning = false;
                 });
+                
                 AnimationThread.Start();
             }
         }
@@ -105,8 +104,6 @@ namespace View.Utility
         {
             AnimationThread?.Abort();
         }
-
-        
 
     }
 }

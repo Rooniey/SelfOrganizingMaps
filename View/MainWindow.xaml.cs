@@ -24,6 +24,7 @@ using IAD_zad2.Utilities.ImageProcessing;
 using Microsoft.Win32;
 using OxyPlot.Wpf;
 using View.Utility;
+using Color = System.Windows.Media.Color;
 using Series = OxyPlot.Wpf.Series;
 
 namespace View
@@ -42,7 +43,7 @@ namespace View
 
         public List<Vector<double>> TrainingData { get; set; }
 
-        public int  NumberOfNeurons { get; set; }
+        public int NumberOfNeurons { get; set; }
         #region UiToBind
         public string ManhattanChoice { get; set; } = "Manhattan";
         public string EuclideanChoice { get; set; } = "Euclidean";
@@ -77,11 +78,11 @@ namespace View
 
                 if (AlgorithmSelectBox.Text == SomChoice)
                 {
-                   Network = new SelfOrganizingMap(neuronCount, new NeuronRandomRectangularInitializer(minWeights,maxWeights, dimensions), new EuclideanDistance());
+                    Network = new SelfOrganizingMap(neuronCount, new NeuronRandomRectangularInitializer(minWeights, maxWeights, dimensions), new EuclideanDistance());
                 }
                 else
                 {
-                   Network = new KMeansNetwork(neuronCount, new NeuronRandomRectangularInitializer(minWeights, maxWeights, dimensions), new EuclideanDistance());
+                    Network = new KMeansNetwork(neuronCount, new NeuronRandomRectangularInitializer(minWeights, maxWeights, dimensions), new EuclideanDistance());
                 }
 
                 SomInformation.Text =
@@ -119,7 +120,7 @@ namespace View
                         DistanceCalculator = Network.DistanceCalculator
                     };
                     SomInformation.Text += $"\nSom trained. Quantization error: {err.CalculateError(Network.Neurons, TrainingData):F} ";
-                    if(sno != null) DisplayIfTwoDimensional(sno);
+                    if (sno != null) DisplayIfTwoDimensional(sno);
                 }
                 catch (Exception e)
                 {
@@ -136,7 +137,7 @@ namespace View
                 {
                     List<OxyPlot.Wpf.Series> moving =
                         View.Utility.Converter.ConvertToScatterSeries(sno.HistoryOfNeurons);
-                    
+
                     var scattersData = new List<ScatterPoint>();
                     foreach (var train in TrainingData)
                     {
@@ -148,7 +149,8 @@ namespace View
                     {
                         ItemsSource = scattersData,
                         Title = $"Training points",
-                        MarkerSize = 2
+                        MarkerSize = 2,
+                        MarkerFill = Color.FromRgb(140, 131, 130)
                     };
 
                     ChartWindow chw1 = new ChartWindow(stat, moving);
@@ -159,43 +161,50 @@ namespace View
                     List<List<OxyPlot.Wpf.Series>> series = new List<List<Series>>();
                     List<List<Vector<double>>> history = Network.Observer.HistoryOfNeurons;
 
-                    foreach (var epoch in history)
+                    for(int j = 0; j < history.Count; j++)
                     {
-                        List<OxyPlot.Wpf.Series> group = new List<Series>();
-                        Dictionary<Neuron, List<Vector<double>>> neuronZones =
-                            new Dictionary<Neuron, List<Vector<double>>>();
-                        int i = 0;
-                        foreach (var neuron in Network.Neurons)
+                        var epoch = history[j];
+                        if (j % 4 == 0)
                         {
-                            neuronZones.Add(neuron, new List<Vector<double>>());
-                            neuron.CurrentWeights = epoch[i];
-                            i++;
-                        }
-
-
-                        foreach (var data in TrainingData)
-                        {
-                            neuronZones[Network.GetWinner(data)].Add(data);
-                        }
-
-
-                        foreach (var neuronZone in neuronZones)
-                        {
-                            var scatterSet = new List<ScatterPoint>();
-                            scatterSet.Add(Converter.ConvertVectorToScatterPoint(neuronZone.Key.CurrentWeights));
-                            var points = neuronZone.Value;
-                            foreach (var point in points)
+                            List<OxyPlot.Wpf.Series> group = new List<Series>();
+                            Dictionary<Neuron, List<Vector<double>>> neuronZones =
+                                new Dictionary<Neuron, List<Vector<double>>>();
+                            int i = 0;
+                            foreach (var neuron in Network.Neurons)
                             {
-                                scatterSet.Add(Converter.ConvertVectorToScatterPoint(point));
+                                neuronZones.Add(neuron, new List<Vector<double>>());
+                                neuron.CurrentWeights = epoch[i];
+                                i++;
                             }
-                            group.Add(new OxyPlot.Wpf.ScatterSeries
+
+
+                            foreach (var data in TrainingData)
                             {
-                                ItemsSource = scatterSet,
-                                Title = $"Class",
-                                MarkerSize = 3
-                            });
+                                neuronZones[Network.GetWinner(data)].Add(data);
+                            }
+
+
+                            foreach (var neuronZone in neuronZones)
+                            {
+                                var scatterSet = new List<ScatterPoint>();
+                                scatterSet.Add(
+                                    Converter.ConvertVectorToScatterPoint(neuronZone.Key.CurrentWeights, true));
+                                var points = neuronZone.Value;
+                                foreach (var point in points)
+                                {
+                                    scatterSet.Add(Converter.ConvertVectorToScatterPoint(point));
+                                }
+
+                                group.Add(new OxyPlot.Wpf.ScatterSeries
+                                {
+                                    ItemsSource = scatterSet,
+                                    Title = $"Class",
+                                    MarkerSize = 3
+                                });
+                            }
+
+                            series.Add(group);
                         }
-                        series.Add(group);
                     }
 
                     ChartWindow chw2 = new ChartWindow(series);
@@ -203,14 +212,14 @@ namespace View
                     chw2.Show();
                 }
             }
-          
+
         }
 
 
         #region UiObjectGenerators
         private TrainingParameters GetParameters()
         {
-            
+
             int epochs = Int32.Parse(TrainingEpochs.Text);
             int iterations = Int32.Parse(TrainingIterations.Text);
             TrainingParameters p = p = new KMeansTrainingParameters()

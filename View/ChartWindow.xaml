@@ -24,7 +24,6 @@
             <TextBox x:Name="SpeedInMiliseconds" HorizontalAlignment="Left" Height="23" Margin="10,70,0,0" Grid.Row="1" TextWrapping="Wrap" Text="500" VerticalAlignment="Top" Width="120"/>
             <Label Content="Animation speed in mili." HorizontalAlignment="Left" Margin="10,39,0,0" Grid.Row="1" VerticalAlignment="Top"/>
             <Button x:Name="PauseButton" Content="Pause / Resume" HorizontalAlignment="Left" Margin="168,12,0,0" Grid.Row="1" VerticalAlignment="Top" Width="109" Click="PauseButton_Click"/>
-            <Slider x:Name="TimeLine" HorizontalAlignment="Left" Margin="173,70,0,0" Grid.Row="1" VerticalAlignment="Top" Width="541"/>
         </Grid>
     </Border>
 </Window>
