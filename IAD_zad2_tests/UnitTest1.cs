@@ -11,8 +11,8 @@ namespace IAD_zad2_tests
         public void TestMethod1()
         {
             ShapeFileGenerator sh = new ShapeFileGenerator();
-            sh.GenerateData(System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "//source_image.bmp",
-                System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/shapedata.txt");
+            sh.GenerateData(System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "//centroids.bmp",
+                System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "//centroids_data.txt");
         }
     }
 }

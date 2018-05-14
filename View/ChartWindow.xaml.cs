@@ -33,6 +33,7 @@ namespace View
         {
             InitializeComponent();
             PlotAnimation = new PlotAnimation(Plot);
+            Plot.IsLegendVisible = false;
             AnimationSeries = animationSeries;
             MultipleSerieses = true;
         }
@@ -84,6 +85,11 @@ namespace View
                 PlotAnimation.Pause();
             else 
                 PlotAnimation.Resume();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Plot.Title = NewTitleTextBox.Text;
         }
     }
 }
