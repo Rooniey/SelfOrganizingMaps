@@ -33,7 +33,9 @@ namespace IAD_zad2.Model
 
             Observer?.SaveState(Neurons);
 
-            for (int j = 0; j < epochs; j++)
+            bool end = false;
+
+            for (int j = 0; j < epochs && !end; j++)
             {
                 var shuffled = trainingData.Shuffle();
                 Dictionary<Neuron, List<Vector<double>>> neuronsZones = new Dictionary<Neuron, List<Vector<double>>>();
@@ -58,6 +60,7 @@ namespace IAD_zad2.Model
 
 
                 var aggregate = Vector<double>.Build.DenseOfEnumerable(new List<double>(new double[Dimensions]) );
+                end = true;
                 foreach (var pair in neuronsZones)
                 {
                     foreach (var vec in pair.Value)
@@ -68,6 +71,11 @@ namespace IAD_zad2.Model
                     if (pair.Value.Count != 0)
                     {
                         aggregate = aggregate.Divide(pair.Value.Count);
+                        var diff = aggregate.Subtract(pair.Key.CurrentWeights).Map(Math.Abs).Sum();
+                        if (end && diff > 0.0001)
+                        {
+                            end = false;
+                        }
                         pair.Key.CurrentWeights = aggregate;
                     }
                     

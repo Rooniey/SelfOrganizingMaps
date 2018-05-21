@@ -23,6 +23,8 @@ namespace View
         public ChartWindow(Series stat, List<Series> animationSeries)
         {
             InitializeComponent();
+            Plot.TitleFontSize = 24;
+            Plot.TitleFontWeight = FontWeights.ExtraBold;
             PlotAnimation = new PlotAnimation(Plot);
             Stat = stat;
             Moving = animationSeries;
@@ -33,6 +35,8 @@ namespace View
         {
             InitializeComponent();
             PlotAnimation = new PlotAnimation(Plot);
+            Plot.TitleFontSize = 24;
+            Plot.TitleFontWeight = FontWeights.ExtraBold;
             Plot.IsLegendVisible = false;
             AnimationSeries = animationSeries;
             MultipleSerieses = true;
@@ -90,6 +94,21 @@ namespace View
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Plot.Title = NewTitleTextBox.Text;
+        }
+
+        private void ShowFirstButton_Click(object sender, RoutedEventArgs e)
+        {
+            
+            PlotAnimation.CurrentIteration = 0;
+            PlotAnimation.Pause();
+
+        }
+
+        private void ShowLastButton_Click(object sender, RoutedEventArgs e)
+        {
+            var last = MultipleSerieses ? AnimationSeries.Count - 1 : Moving.Count - 1;
+            PlotAnimation.CurrentIteration = last;
+            PlotAnimation.Pause();
         }
     }
 }

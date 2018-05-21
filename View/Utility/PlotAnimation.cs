@@ -54,7 +54,8 @@ namespace View.Utility
                             Plot.Dispatcher.Invoke((Action) (() =>
                             {
                                 if (CurrentIteration > 0) Plot.Series.RemoveAt(1);
-                                Plot.Series.Add(seriesList[CurrentIteration]);                   
+                                Plot.Series.Add(seriesList[CurrentIteration]);
+                                Plot.Title = $"{CurrentIteration}/{seriesList.Count}";
                                 Plot.InvalidatePlot();
                             }));
                             CurrentIteration++;
@@ -88,6 +89,7 @@ namespace View.Utility
                                 {
                                     Plot.Series.Add(s);
                                 }
+                                Plot.Title = $"{CurrentIteration}/{series.Count}";
                                 Plot.InvalidatePlot();
                             }));
                             CurrentIteration++;

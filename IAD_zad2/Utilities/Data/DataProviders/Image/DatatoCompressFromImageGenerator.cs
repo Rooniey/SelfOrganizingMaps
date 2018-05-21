@@ -6,8 +6,8 @@ namespace IAD_zad2.Utilities.Data.DataProviders.Image
 {
     public class DataToCompressFromImageGenerator : BasicDataGenerator
     {
-        private static readonly int neuronsInFrame = 9;
-        private static readonly int stepSize = 3;
+        private static readonly int neuronsInFrame = 16;
+        private static readonly int stepSize = 4;
         public override void GenerateData(string pathToSourceImage, string pathToSaveData, bool shouldReverseColors = false)
         {
             try

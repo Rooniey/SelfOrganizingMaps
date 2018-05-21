@@ -27,6 +27,8 @@
             <TextBox x:Name="NewTitleTextBox" HorizontalAlignment="Left" Height="23" Margin="168,70,0,0" Grid.Row="1" TextWrapping="Wrap" Text="Sample title" VerticalAlignment="Top" Width="120"/>
             <Label Content="Title" HorizontalAlignment="Left" Margin="168,39,0,0" Grid.Row="1" VerticalAlignment="Top"/>
             <Button x:Name="NewTitleButton" Content="Set new title" HorizontalAlignment="Left" Margin="307,71,0,0" Grid.Row="1" VerticalAlignment="Top" Width="75" Click="Button_Click" RenderTransformOrigin="1.324,0.591"/>
+            <Button x:Name="ShowFirstButton" Content="Show first" HorizontalAlignment="Left" Margin="438,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.587,0.5" Click="ShowFirstButton_Click"/>
+            <Button x:Name="ShowLastButton" Content="Show last" HorizontalAlignment="Left" Margin="540,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="75" Click="ShowLastButton_Click"/>
         </Grid>
     </Border>
 </Window>
